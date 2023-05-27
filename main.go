@@ -38,6 +38,8 @@ func loadDatabase() {
 	database.InitDb()
 	database.Db.AutoMigrate(&model.Role{})
 	database.Db.AutoMigrate(&model.User{})
+	database.Db.AutoMigrate(&model.Room{})
+	database.Db.AutoMigrate(&model.Booking{})
 	seedData()
 }
 
@@ -65,6 +67,18 @@ func serveApplication() {
 	adminRoutes.POST("/user/role", controller.CreateRole)
 	adminRoutes.GET("/user/roles", controller.GetRoles)
 	adminRoutes.PUT("/user/role/:id", controller.UpdateRole)
+	adminRoutes.POST("/room/add", controller.CreateRoom)
+	adminRoutes.PUT("/room/:id", controller.UpdateRoom)
+	adminRoutes.GET("/room/bookings", controller.GetBookings)
+
+	publicRoutes := router.Group("/api/view")
+	publicRoutes.GET("/rooms", controller.GetRooms)
+	publicRoutes.GET("/room/:id", controller.GetRoom)
+
+	protectedRoutes := router.Group("/api")
+	protectedRoutes.Use(util.JWTAuthCustomer())
+	protectedRoutes.GET("/rooms/booked", controller.GetUserBookings)
+	protectedRoutes.POST("/room/book", controller.CreateBooking)
 
 	router.Run(":8000")
 	fmt.Println("Server running on port 8000")

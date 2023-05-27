@@ -20,6 +20,8 @@ var privateKey = []byte(os.Getenv("JWT_PRIVATE_KEY"))
 // generate JWT token
 func GenerateJWT(user model.User) (string, error) {
 	tokenTTL, _ := strconv.Atoi(os.Getenv("TOKEN_TTL"))
+	//log.Println(time.Now())
+	//log.Println(time.Now().Add(time.Second * time.Duration(tokenTTL)))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":   user.ID,
 		"role": user.RoleID,
@@ -67,7 +69,7 @@ func ValidateCustomerRoleJWT(context *gin.Context) error {
 	if ok && token.Valid && userRole == 2 || userRole == 1 {
 		return nil
 	}
-	return errors.New("invalid author token provided")
+	return errors.New("invalid customer or admin token provided")
 }
 
 // fetch user details from the token
